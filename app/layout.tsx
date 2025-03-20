@@ -1,5 +1,4 @@
 import "@/app/globals.css";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import type { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
 
@@ -16,9 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistMono.className} antialiased`}>
-        <SidebarProvider>{children}</SidebarProvider>
-      </body>
+      <body className={`${geistMono.className} antialiased`}>{children}</body>
     </html>
   );
 }
