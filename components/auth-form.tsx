@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,7 +11,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { publicApi } from "@/services";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export function AuthForm({
   variant = "login",
@@ -18,6 +22,40 @@ export function AuthForm({
 }: React.ComponentPropsWithoutRef<"div"> & {
   variant?: "login" | "signup";
 }) {
+  const router = useRouter();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async function handleSubmit(e: any) {
+    e.preventDefault();
+
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("password", password);
+
+    if (variant === "login") {
+      try {
+        await publicApi.login(formData).then(() => {
+          router.push("/dashboard");
+        });
+      } catch (error) {
+        console.error("Login error:", error);
+      }
+    } else {
+      try {
+        await publicApi.register(formData).then(async () => {
+          await publicApi.login(formData).then(() => {
+            router.push("/dashboard");
+          });
+        });
+      } catch (error) {
+        console.error("Register error:", error);
+      }
+    }
+  }
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -32,7 +70,7 @@ export function AuthForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>

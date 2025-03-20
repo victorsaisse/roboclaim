@@ -1,4 +1,5 @@
 import "@/app/globals.css";
+import ReactQueryProvider from "@/providers/react-query-provider";
 import type { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
 
@@ -15,7 +16,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistMono.className} antialiased`}>{children}</body>
+      <body className={`${geistMono.className} antialiased`}>
+        <ReactQueryProvider>{children}</ReactQueryProvider>
+      </body>
     </html>
   );
 }
