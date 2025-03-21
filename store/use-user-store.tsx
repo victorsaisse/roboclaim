@@ -8,14 +8,14 @@ type User = {
 };
 
 type UserState = {
-  user: User | null;
-  setUser: (user: User | null) => void;
+  user: User;
+  setUser: (user: User) => void;
 };
 
 export const useUserStore = create<UserState>()(
   persist(
     (set) => ({
-      user: null,
+      user: {} as User,
       setUser: (user) => set({ user }),
     }),
     {

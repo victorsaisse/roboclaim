@@ -1,5 +1,7 @@
 "use client";
 
+import { apiClient } from "@/services/api-client";
+import { useUserStore } from "@/store/use-user-store";
 import { Upload } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
@@ -14,6 +16,8 @@ const ACCEPTED_FILE_TYPES = [
 ];
 
 export function FileUpload() {
+  const { user } = useUserStore();
+
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -50,45 +54,49 @@ export function FileUpload() {
     return true;
   };
 
-  const handleDrop = useCallback(async (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
+  const handleDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
 
-    const files = Array.from(e.dataTransfer.files);
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length === 0) return;
+      const file = files[0];
+      if (!validateFile(file)) return;
 
-    if (files.length === 0) return;
-
-    // Only process the first file
-    const file = files[0];
-
-    // Validate file
-    if (!validateFile(file)) return;
-
-    // Upload file
-    const formData = new FormData();
-    formData.append("file", file);
-
-    setIsLoading(true);
-    try {
-      // Replace with your API endpoint
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Upload failed");
+      if (!user?.id) {
+        toast.error("User information not available. Please log in again.");
+        return;
       }
 
-      toast.success("File uploaded successfully!");
-    } catch (error) {
-      toast.error("Failed to upload file. Please try again.");
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+      const formData = new FormData();
+
+      formData.append("file", file, file.name);
+      formData.append("userId", String(user.id));
+
+      setIsLoading(true);
+      try {
+        const response = await apiClient.post("/files/upload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        if (response.status !== 201) {
+          throw new Error("Upload failed");
+        }
+
+        toast.success("File uploaded successfully!");
+      } catch (error) {
+        toast.error("Failed to upload file. Please try again.");
+        console.error("Upload error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [user]
+  );
 
   const handleFileSelect = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,37 +104,40 @@ export function FileUpload() {
 
       if (!files || files.length === 0) return;
 
-      // Only process the first file
       const file = files[0];
-
-      // Validate file
       if (!validateFile(file)) return;
 
-      // Upload file
+      if (!user?.id) {
+        toast.error("User information not available. Please log in again.");
+        return;
+      }
+
       const formData = new FormData();
-      formData.append("file", file);
+
+      formData.append("file", file, file.name);
+      formData.append("userId", String(user.id));
 
       setIsLoading(true);
       try {
-        // Replace with your API endpoint
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
+        const response = await apiClient.post("/files/upload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         });
 
-        if (!response.ok) {
+        if (response.status !== 201) {
           throw new Error("Upload failed");
         }
 
         toast.success("File uploaded successfully!");
       } catch (error) {
         toast.error("Failed to upload file. Please try again.");
-        console.error(error);
+        console.error("Upload error:", error);
       } finally {
         setIsLoading(false);
       }
     },
-    []
+    [user]
   );
 
   return (
