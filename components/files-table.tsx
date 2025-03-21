@@ -17,6 +17,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getUserFiles } from "@/services/users";
+import { useUserStore } from "@/store/use-user-store";
+import { useQuery } from "@tanstack/react-query";
 import { format, formatDistanceToNow } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import {
@@ -26,7 +29,6 @@ import {
   Clock,
   ExternalLink,
   File,
-  FileText,
   RefreshCw,
 } from "lucide-react";
 import { useState } from "react";
@@ -47,43 +49,28 @@ type FileData = {
 };
 
 export default function FilesTable() {
+  const { user } = useUserStore();
+
   const [selectedFile, setSelectedFile] = useState<FileData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const files = [
-    {
-      id: "38b4ea52-388c-4762-868c-5f31923ecb1d",
-      url: "https://wjhbkcdphstqusqdfkdx.supabase.co/storage/v1/object/public/roboclaim-bucket/871f8366-6024-4026-b379-ad3d27187c53/34e637a1-4b2d-44d6-8875-7a480fb26cef",
-      path: "871f8366-6024-4026-b379-ad3d27187c53/34e637a1-4b2d-44d6-8875-7a480fb26cef",
-      originalName: "CV - Victor Saisse - 2025.pdf",
-      fileType: "application/pdf",
-      status: "completed",
-      extractedData:
-        "\n\nVICTOR SAISSE | \nLinkedIn | Website \nsaissevictor@gmail.com | +1 (438) 527-2226 | Montreal, Quebec, Canada \n \nTechnical Skills \n \nFrontend: React, React Native, TypeScript, Next.js, Redux, TailwindCSS, Shadcn \nBackend: Node.js, Python, REST/GraphQL APIs, PostgreSQL, MySQL, Shopify GraphQL \nCloud & DevOps: AWS (Lambda, S3, EC2, CDN), GCP, Firebase (Firestore, Cloud Functions), GitHub \nActions CI/CD, Docker \nE-commerce: Shopify Apps/Themes/Headless, Sanity CMS, WMS/POS Integration \nAI/ML: OpenAI, Claude, AI-Powered Recommendation Systems, Chatbots \n \nProfessional Experience \n \nFounder & Full-Stack Developer | EasyFrame | May 2023 – Present \nBuilt AI-driven features including a real-time product recommendation engine and chatbot assistant \nusing OpenAI, improving user engagement by 25% through personalized combo suggestions and \ndiscounts. \nArchitected scalable backend using AWS Lambda, SQS, and Docker for video processing \n(FFmpeg/Python), with Supabase PostgreSQL for real-time data syncing. \nReduced image delivery latency by 40% via AWS S3/CDN integration and optimized API endpoints. \nLed product strategy, UI/UX design, and pitch sessions for investors as a first-time founder. \n \nTech Lead | Evry Jewels | Aug 2023 – Aug 2024 \nDrove 300% profitability growth by overhauling legacy systems: improved website load speed by 60%, \nreduced cart abandonment by 35%, and built a custom Warehouse Management System (WMS) using \nShopify APIs. \nTech Stack: React Native (customer/internal apps), Redux for state management, RabbitMQ, MySQL, \nHeroku. \nImplemented GitHub Actions CI/CD, reducing deployment time by 30% and improving team productivity. \nManaged a team of 5 developers, conducting code reviews and mentoring junior engineers in Agile \npractices. \n \nFull-Stack Developer | Field Office | Sep 2022 – Aug 2023 \nDeveloped Shopify headless e-commerce platforms integrated with Sanity CMS, increasing client \nrevenue by up to 20%. \nBuilt a real estate social media app using React, Redux, and Firebase (Firestore, Cloud Functions). \nDesigned Google Cloud microservices for client analytics dashboards, improving data processing speed. \n \nApplication Developer Analyst | CSP | Jul 2021 – Sep 2022 \nDelivered full-stack solutions for clients using React, Node.js, WordPress, and PHP. \nConducted code reviews, implemented updates, and ensured timely customer deliveries, improving client \nsatisfaction and system reliability. \n \nFull-Stack Developer | NOX Solution | Sep 2020 – Jul 2021 \nDesigned and implemented secure login systems using JWT/OAuth, creating private user areas and \nensuring robust security. Built optimized landing pages and sales funnels using A/B testing. \nAutomated server deployments, including LAMP stack, configured DNS and SSL certificates. \n \nLanguages \n \nFluent: English, Portuguese | Intermediate: French | Basic: Spanish",
-      summary:
-        "Victor Saisse is a skilled full-stack developer based in Montreal, Canada, with expertise in frontend technologies like React and backend systems including Node.js and Python. He is the founder of EasyFrame, where he developed AI-driven features that enhanced user engagement and optimized backend processes using AWS. Previously, as a Tech Lead at Evry Jewels, he significantly improved profitability and system performance while managing a development team. His experience also includes developing e-commerce platforms and applications, with a strong focus on enhancing client revenue and satisfaction. Victor is fluent in English and Portuguese, with intermediate proficiency in French.",
-      createdAt: "2025-03-21 2:35:35",
-      updatedAt: "2025-03-21 2:36:34",
-      userId: "871f8366-6024-4026-b379-ad3d27187c53",
-      errorLog: "",
-    },
-    {
-      id: "79009ba5-85a3-42e2-a701-7a36e67bd56d",
-      url: "https://wjhbkcdphstqusqdfkdx.supabase.co/storage/v1/object/public/roboclaim-bucket/871f8366-6024-4026-b379-ad3d27187c53/73b55c4f-a6c7-49f0-9013-b03f5c772b15",
-      path: "871f8366-6024-4026-b379-ad3d27187c53/73b55c4f-a6c7-49f0-9013-b03f5c772b15",
-      originalName: "CV - Victor Saisse - 2025.pdf",
-      fileType: "application/pdf",
-      status: "completed",
-      extractedData:
-        "\n\nVICTOR SAISSE | \nLinkedIn | Website \nsaissevictor@gmail.com | +1 (438) 527-2226 | Montreal, Quebec, Canada \n \nTechnical Skills \n \nFrontend: React, React Native, TypeScript, Next.js, Redux, TailwindCSS, Shadcn \nBackend: Node.js, Python, REST/GraphQL APIs, PostgreSQL, MySQL, Shopify GraphQL \nCloud & DevOps: AWS (Lambda, S3, EC2, CDN), GCP, Firebase (Firestore, Cloud Functions), GitHub \nActions CI/CD, Docker \nE-commerce: Shopify Apps/Themes/Headless, Sanity CMS, WMS/POS Integration \nAI/ML: OpenAI, Claude, AI-Powered Recommendation Systems, Chatbots \n \nProfessional Experience \n \nFounder & Full-Stack Developer | EasyFrame | May 2023 – Present \nBuilt AI-driven features including a real-time product recommendation engine and chatbot assistant \nusing OpenAI, improving user engagement by 25% through personalized combo suggestions and \ndiscounts. \nArchitected scalable backend using AWS Lambda, SQS, and Docker for video processing \n(FFmpeg/Python), with Supabase PostgreSQL for real-time data syncing. \nReduced image delivery latency by 40% via AWS S3/CDN integration and optimized API endpoints. \nLed product strategy, UI/UX design, and pitch sessions for investors as a first-time founder. \n \nTech Lead | Evry Jewels | Aug 2023 – Aug 2024 \nDrove 300% profitability growth by overhauling legacy systems: improved website load speed by 60%, \nreduced cart abandonment by 35%, and built a custom Warehouse Management System (WMS) using \nShopify APIs. \nTech Stack: React Native (customer/internal apps), Redux for state management, RabbitMQ, MySQL, \nHeroku. \nImplemented GitHub Actions CI/CD, reducing deployment time by 30% and improving team productivity. \nManaged a team of 5 developers, conducting code reviews and mentoring junior engineers in Agile \npractices. \n \nFull-Stack Developer | Field Office | Sep 2022 – Aug 2023 \nDeveloped Shopify headless e-commerce platforms integrated with Sanity CMS, increasing client \nrevenue by up to 20%. \nBuilt a real estate social media app using React, Redux, and Firebase (Firestore, Cloud Functions). \nDesigned Google Cloud microservices for client analytics dashboards, improving data processing speed. \n \nApplication Developer Analyst | CSP | Jul 2021 – Sep 2022 \nDelivered full-stack solutions for clients using React, Node.js, WordPress, and PHP. \nConducted code reviews, implemented updates, and ensured timely customer deliveries, improving client \nsatisfaction and system reliability. \n \nFull-Stack Developer | NOX Solution | Sep 2020 – Jul 2021 \nDesigned and implemented secure login systems using JWT/OAuth, creating private user areas and \nensuring robust security. Built optimized landing pages and sales funnels using A/B testing. \nAutomated server deployments, including LAMP stack, configured DNS and SSL certificates. \n \nLanguages \n \nFluent: English, Portuguese | Intermediate: French | Basic: Spanish",
-      summary:
-        "Victor Saisse is a full-stack developer based in Montreal, Canada, with expertise in frontend and backend technologies, cloud services, and e-commerce solutions. He is the founder of EasyFrame, where he developed AI-driven features that enhanced user engagement and optimized backend processes using AWS and Docker. Previously, as a Tech Lead at Evry Jewels, he significantly improved profitability and website performance while managing a team of developers. His experience also includes developing headless e-commerce platforms and real estate applications, as well as delivering full-stack solutions for various clients. Victor is fluent in English and Portuguese, with intermediate proficiency in French.",
-      errorLog: "PDF parsing error: Not implemented",
-      createdAt: "2025-03-21 2:54:58",
-      updatedAt: "2025-03-21 2:59:58",
-      userId: "871f8366-6024-4026-b379-ad3d27187c53",
-    },
-  ];
+  const {
+    data: files,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["files", user?.id],
+    queryFn: () => (user?.id ? getUserFiles(user.id) : Promise.resolve([])),
+    enabled: !!user?.id,
+  });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -113,13 +100,6 @@ export default function FilesTable() {
       default:
         return "";
     }
-  };
-
-  const getFileTypeIcon = (fileType: string) => {
-    if (fileType.includes("pdf")) {
-      return <FileText className="h-4 w-4 mr-1" />;
-    }
-    return <File className="h-4 w-4 mr-1" />;
   };
 
   const formatDate = (dateString: string) => {
@@ -162,7 +142,7 @@ export default function FilesTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {files.map((file) => (
+          {files.map((file: FileData) => (
             <TableRow
               key={file.id}
               className="cursor-pointer hover:bg-slate-50"
@@ -179,7 +159,7 @@ export default function FilesTable() {
                     variant="outline"
                     className="flex items-center text-xs px-2 py-0.5 uppercase"
                   >
-                    {getFileTypeIcon(file.fileType)}
+                    <File className="h-4 w-4 mr-1" />
                     {file.fileType.split("/")[1]}
                   </Badge>
                 </div>

@@ -18,6 +18,7 @@ export async function login(formData: FormData) {
       localStorage.setItem("token", response.data.access_token);
       useUserStore.setState({
         user: {
+          id: response.data.user.id,
           email: response.data.user.email,
           role: response.data.user.role,
         },
