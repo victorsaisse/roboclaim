@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, CheckCircle, Clock, RefreshCw } from "lucide-react";
+import { AlertTriangle, CheckCircle, RefreshCw } from "lucide-react";
 
 type FileStatusBadgeProps = {
   status: string;
@@ -10,7 +10,7 @@ export function FileStatusBadge({ status, errorLog }: FileStatusBadgeProps) {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "pending":
-        return <Clock className="h-4 w-4 mr-1" />;
+        return <RefreshCw className="h-4 w-4 mr-1 animate-spin" />;
       case "processing":
         return <RefreshCw className="h-4 w-4 mr-1 animate-spin" />;
       case "completed":
