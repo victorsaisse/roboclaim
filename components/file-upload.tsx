@@ -84,7 +84,6 @@ export function FileUpload() {
 
         const extractResponse = await apiClient.post("/files/extract", {
           filePath,
-          userId: user.id,
         });
 
         if (extractResponse.status !== 201) {
