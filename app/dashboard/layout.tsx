@@ -1,6 +1,7 @@
 import "@/app/globals.css";
+import { AppSidebar } from "@/components/app-sidebar";
 import ProtectedRoute from "@/components/protected-route";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export default function RootLayout({
   children,
@@ -9,7 +10,10 @@ export default function RootLayout({
 }>) {
   return (
     <ProtectedRoute>
-      <SidebarProvider>{children}</SidebarProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>{children}</SidebarInset>
+      </SidebarProvider>
     </ProtectedRoute>
   );
 }
