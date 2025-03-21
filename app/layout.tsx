@@ -1,4 +1,5 @@
 import "@/app/globals.css";
+import { Toaster } from "@/components/ui/sonner";
 import ReactQueryProvider from "@/providers/react-query-provider";
 import type { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
@@ -18,6 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistMono.className} antialiased`}>
         <ReactQueryProvider>{children}</ReactQueryProvider>
+        <Toaster />
       </body>
     </html>
   );
