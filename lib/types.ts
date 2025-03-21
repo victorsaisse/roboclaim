@@ -10,5 +10,6 @@ export type FileData = {
   createdAt: string;
   updatedAt: string;
   userId: string;
+  processingTime: number;
   errorLog?: string;
 };

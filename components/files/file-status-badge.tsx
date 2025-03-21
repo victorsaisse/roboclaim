@@ -3,10 +3,9 @@ import { AlertTriangle, CheckCircle, RefreshCw } from "lucide-react";
 
 type FileStatusBadgeProps = {
   status: string;
-  errorLog?: string;
 };
 
-export function FileStatusBadge({ status, errorLog }: FileStatusBadgeProps) {
+export function FileStatusBadge({ status }: FileStatusBadgeProps) {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "pending":
@@ -43,12 +42,6 @@ export function FileStatusBadge({ status, errorLog }: FileStatusBadgeProps) {
         {getStatusIcon(status)}
         {status}
       </Badge>
-
-      {errorLog && (
-        <Badge className="flex items-center text-xs px-2 py-0.5 bg-orange-100 text-orange-800">
-          <AlertTriangle className="h-3 w-3" />
-        </Badge>
-      )}
     </div>
   );
 }

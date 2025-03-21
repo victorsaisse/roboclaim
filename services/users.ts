@@ -19,3 +19,12 @@ export async function getUserFiles(userId: string) {
     throw error;
   }
 }
+
+export async function getUserStats(userId: string) {
+  try {
+    const response = await apiClient.get(`/users/${userId}/stats`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}

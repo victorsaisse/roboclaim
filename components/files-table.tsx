@@ -1,5 +1,10 @@
 "use client";
 
+import { ErrorMessage } from "@/components/error-message";
+import { DeleteFileDialog } from "@/components/files/delete-file-dialog";
+import { FileDetailsModal } from "@/components/files/file-details-modal";
+import { FileStatusBadge } from "@/components/files/file-status-badge";
+import { FilesTableSkeleton } from "@/components/skeletons/files-table-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,33 +16,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { FileData } from "@/lib/types";
 import { deleteUserFile } from "@/services/files";
 import { getUserFiles } from "@/services/users";
 import { useUserStore } from "@/store/use-user-store";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
-import { ExternalLink, File, Trash2 } from "lucide-react";
+import { ExternalLink, File, RefreshCcw, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { DeleteFileDialog } from "./files/delete-file-dialog";
-import { FileDetailsModal } from "./files/file-details-modal";
-import { FileStatusBadge } from "./files/file-status-badge";
-
-type FileData = {
-  id: string;
-  url: string;
-  path: string;
-  originalName: string;
-  fileType: string;
-  status: "pending" | "processing" | "completed" | "failed";
-  extractedData: string;
-  summary: string;
-  createdAt: string;
-  updatedAt: string;
-  userId: string;
-  errorLog?: string;
-};
 
 export default function FilesTable() {
   const { user } = useUserStore();
@@ -59,11 +47,16 @@ export default function FilesTable() {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <FilesTableSkeleton />;
   }
 
   if (error) {
-    return <div>Error: {error.message}</div>;
+    return (
+      <ErrorMessage
+        message="We couldn't load your files. Please try again."
+        onRetry={() => refetch()}
+      />
+    );
   }
 
   const formatDate = (dateString: string) => {
@@ -110,6 +103,17 @@ export default function FilesTable() {
 
   return (
     <>
+      <div className="flex justify-end mb-4 ">
+        <Button
+          variant="outline"
+          onClick={() => refetch()}
+          className="cursor-pointer"
+        >
+          <RefreshCcw className="h-4 w-4 mr-2" />
+          Refresh
+        </Button>
+      </div>
+
       <Table>
         <TableCaption>A list of your files.</TableCaption>
         <TableHeader>
@@ -117,7 +121,8 @@ export default function FilesTable() {
             <TableHead>File Name</TableHead>
             <TableHead>File Type</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Created</TableHead>
+            <TableHead>Created At</TableHead>
+            <TableHead>Processing Time</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -130,28 +135,30 @@ export default function FilesTable() {
             >
               <TableCell>
                 <div className="flex flex-col">
-                  <div className="font-medium">{file.originalName}</div>
+                  <div className="font-medium truncate max-w-[200px]">
+                    {file.originalName}
+                  </div>
                 </div>
               </TableCell>
               <TableCell className="font-medium">
                 <div className="flex items-center mt-1">
                   <Badge
                     variant="outline"
-                    className="flex items-center text-xs px-2 py-0.5 uppercase"
+                    className="flex items-center text-xs p-2 py-0.5 uppercase"
                   >
                     <File className="h-4 w-4 mr-1" />
-                    {file.fileType.split("/")[1]}
+                    <span className="truncate max-w-[100px]">
+                      {file.fileType.split("/")[1]}
+                    </span>
                   </Badge>
                 </div>
               </TableCell>
 
               <TableCell>
-                <FileStatusBadge
-                  status={file.status}
-                  errorLog={file.errorLog}
-                />
+                <FileStatusBadge status={file.status} />
               </TableCell>
               <TableCell>{formatDate(file.createdAt)}</TableCell>
+              <TableCell>{format(file.processingTime, "ss.SSS")}s</TableCell>
               <TableCell>
                 <div className="flex items-center space-x-4">
                   <a
