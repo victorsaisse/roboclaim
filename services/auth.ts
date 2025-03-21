@@ -1,6 +1,6 @@
 "use client";
 
-import { publicApiClient } from "@/services/api-client";
+import { apiClient, publicApiClient } from "@/services/api-client";
 
 export async function login(formData: FormData) {
   const email = formData.get("email");
@@ -17,7 +17,7 @@ export async function login(formData: FormData) {
     }
   } catch (error) {
     console.error("Login error:", error);
-    return { error: "Authentication failed" };
+    throw error;
   }
 }
 
@@ -33,10 +33,15 @@ export async function register(formData: FormData) {
     return response.data;
   } catch (error) {
     console.error("Register error:", error);
-    return { error: "Registration failed" };
+    throw error;
   }
 }
 
 export async function logout() {
   localStorage.removeItem("token");
+}
+
+export async function getUser() {
+  const response = await apiClient.get("/auth/profile");
+  return response.data;
 }
