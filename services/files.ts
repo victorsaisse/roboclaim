@@ -11,9 +11,3 @@ export async function deleteUserFile(fileId: string) {
 
   return response.data;
 }
-
-export async function uploadFile(formData: FormData) {
-  const response = await apiClient.post("/files/upload", formData);
-
-  return response.data;
-}

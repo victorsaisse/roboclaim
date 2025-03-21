@@ -38,31 +38,24 @@ export function FileUpload() {
     e.stopPropagation();
   }, []);
 
-  const validateFile = (file: File) => {
-    if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
-      toast.error(
-        "Invalid file type. Please upload PDF, image, CSV or XLSX only."
-      );
-      return false;
-    }
+  const uploadAndProcessFile = useCallback(
+    async (file: File) => {
+      const validateFile = (file: File) => {
+        if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
+          toast.error(
+            "Invalid file type. Please upload PDF, image, CSV or XLSX only."
+          );
+          return false;
+        }
 
-    if (file.size > MAX_FILE_SIZE) {
-      toast.error("File too large. Maximum size is 5MB.");
-      return false;
-    }
+        if (file.size > MAX_FILE_SIZE) {
+          toast.error("File too large. Maximum size is 5MB.");
+          return false;
+        }
 
-    return true;
-  };
+        return true;
+      };
 
-  const handleDrop = useCallback(
-    async (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(false);
-
-      const files = Array.from(e.dataTransfer.files);
-      if (files.length === 0) return;
-      const file = files[0];
       if (!validateFile(file)) return;
 
       if (!user?.id) {
@@ -71,7 +64,6 @@ export function FileUpload() {
       }
 
       const formData = new FormData();
-
       formData.append("file", file, file.name);
       formData.append("userId", String(user.id));
 
@@ -88,6 +80,18 @@ export function FileUpload() {
         }
 
         toast.success("File uploaded successfully!");
+        const filePath = response.data.path;
+
+        const extractResponse = await apiClient.post("/files/extract", {
+          filePath,
+          userId: user.id,
+        });
+
+        if (extractResponse.status !== 201) {
+          throw new Error("Extract failed");
+        }
+
+        toast.success("File extraction started!");
       } catch (error) {
         toast.error("Failed to upload file. Please try again.");
         console.error("Upload error:", error);
@@ -98,46 +102,28 @@ export function FileUpload() {
     [user]
   );
 
+  const handleDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length === 0) return;
+
+      await uploadAndProcessFile(files[0]);
+    },
+    [uploadAndProcessFile]
+  );
+
   const handleFileSelect = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = e.target.files;
-
       if (!files || files.length === 0) return;
 
-      const file = files[0];
-      if (!validateFile(file)) return;
-
-      if (!user?.id) {
-        toast.error("User information not available. Please log in again.");
-        return;
-      }
-
-      const formData = new FormData();
-
-      formData.append("file", file, file.name);
-      formData.append("userId", String(user.id));
-
-      setIsLoading(true);
-      try {
-        const response = await apiClient.post("/files/upload", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-
-        if (response.status !== 201) {
-          throw new Error("Upload failed");
-        }
-
-        toast.success("File uploaded successfully!");
-      } catch (error) {
-        toast.error("Failed to upload file. Please try again.");
-        console.error("Upload error:", error);
-      } finally {
-        setIsLoading(false);
-      }
+      await uploadAndProcessFile(files[0]);
     },
-    [user]
+    [uploadAndProcessFile]
   );
 
   return (
