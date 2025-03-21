@@ -4,6 +4,7 @@ import { ErrorMessage } from "@/components/error-message";
 import { DeleteFileDialog } from "@/components/files/delete-file-dialog";
 import { FileDetailsModal } from "@/components/files/file-details-modal";
 import { FileStatusBadge } from "@/components/files/file-status-badge";
+import { Filters } from "@/components/filters";
 import { FilesTableSkeleton } from "@/components/skeletons/files-table-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,7 @@ import { useUserStore } from "@/store/use-user-store";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
-import { ExternalLink, File, RefreshCcw, Trash2 } from "lucide-react";
+import { ExternalLink, File, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -102,88 +103,85 @@ export default function FilesTable() {
   };
 
   return (
-    <>
-      <div className="flex justify-end mb-4 ">
-        <Button
-          variant="outline"
-          onClick={() => refetch()}
-          className="cursor-pointer"
-        >
-          <RefreshCcw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between gap-2 border-b">
+        <div className="flex-grow">
+          <Filters />
+        </div>
       </div>
 
-      <Table>
-        <TableCaption>A list of your files.</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead>File Name</TableHead>
-            <TableHead>File Type</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Created At</TableHead>
-            <TableHead>Processing Time</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {files.map((file: FileData) => (
-            <TableRow
-              key={file.id}
-              className="cursor-pointer hover:bg-slate-50"
-              onClick={() => handleFileClick(file as FileData)}
-            >
-              <TableCell>
-                <div className="flex flex-col">
-                  <div className="font-medium truncate max-w-[200px]">
-                    {file.originalName}
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell className="font-medium">
-                <div className="flex items-center mt-1">
-                  <Badge
-                    variant="outline"
-                    className="flex items-center text-xs p-2 py-0.5 uppercase"
-                  >
-                    <File className="h-4 w-4 mr-1" />
-                    <span className="truncate max-w-[100px]">
-                      {file.fileType.split("/")[1]}
-                    </span>
-                  </Badge>
-                </div>
-              </TableCell>
-
-              <TableCell>
-                <FileStatusBadge status={file.status} />
-              </TableCell>
-              <TableCell>{formatDate(file.createdAt)}</TableCell>
-              <TableCell>{format(file.processingTime, "ss.SSS")}s</TableCell>
-              <TableCell>
-                <div className="flex items-center space-x-4">
-                  <a
-                    href={file.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center text-blue-600 hover:text-blue-800"
-                  >
-                    <ExternalLink className="h-4 w-4 mr-1" />
-                    View
-                  </a>
-                  <Button
-                    variant="ghost"
-                    onClick={(e) => handleDeleteClick(e, file as FileData)}
-                    className="inline-flex items-center text-red-600 hover:text-red-800 cursor-pointer"
-                  >
-                    <Trash2 className="h-4 w-4 mr-1" />
-                  </Button>
-                </div>
-              </TableCell>
+      <div className="overflow-x-auto">
+        <Table>
+          <TableCaption>A list of your files.</TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead>File Name</TableHead>
+              <TableHead>File Type</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Created At</TableHead>
+              <TableHead>Processing Time</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {files.map((file: FileData) => (
+              <TableRow
+                key={file.id}
+                className="cursor-pointer hover:bg-slate-50"
+                onClick={() => handleFileClick(file as FileData)}
+              >
+                <TableCell>
+                  <div className="flex flex-col">
+                    <div className="font-medium truncate max-w-[200px]">
+                      {file.originalName}
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="font-medium">
+                  <div className="flex items-center mt-1">
+                    <Badge
+                      variant="outline"
+                      className="flex items-center text-xs p-2 py-0.5 uppercase"
+                    >
+                      <File className="h-4 w-4 mr-1" />
+                      <span className="truncate max-w-[100px]">
+                        {file.fileType.split("/")[1]}
+                      </span>
+                    </Badge>
+                  </div>
+                </TableCell>
+
+                <TableCell>
+                  <FileStatusBadge status={file.status} />
+                </TableCell>
+                <TableCell>{formatDate(file.createdAt)}</TableCell>
+                <TableCell>{format(file.processingTime, "ss.SSS")}s</TableCell>
+                <TableCell>
+                  <div className="flex items-center space-x-4">
+                    <a
+                      href={file.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center text-blue-600 hover:text-blue-800"
+                    >
+                      <ExternalLink className="h-4 w-4 mr-1" />
+                      View
+                    </a>
+                    <Button
+                      variant="ghost"
+                      onClick={(e) => handleDeleteClick(e, file as FileData)}
+                      className="inline-flex items-center text-red-600 hover:text-red-800 cursor-pointer"
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       <FileDetailsModal
         file={selectedFile}
@@ -198,6 +196,6 @@ export default function FilesTable() {
         setIsOpen={setIsDeleteDialogOpen}
         onConfirm={confirmDelete}
       />
-    </>
+    </div>
   );
 }
