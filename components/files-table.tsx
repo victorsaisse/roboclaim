@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -17,6 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { deleteUserFile } from "@/services/files";
 import { getUserFiles } from "@/services/users";
 import { useUserStore } from "@/store/use-user-store";
 import { useQuery } from "@tanstack/react-query";
@@ -30,8 +41,10 @@ import {
   ExternalLink,
   File,
   RefreshCw,
+  Trash2,
 } from "lucide-react";
 import { useState } from "react";
+import { Button } from "./ui/button";
 
 type FileData = {
   id: string;
@@ -53,11 +66,14 @@ export default function FilesTable() {
 
   const [selectedFile, setSelectedFile] = useState<FileData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState<FileData | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const {
     data: files,
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: ["files", user?.id],
     queryFn: () => (user?.id ? getUserFiles(user.id) : Promise.resolve([])),
@@ -128,6 +144,27 @@ export default function FilesTable() {
     setIsModalOpen(true);
   };
 
+  const handleDeleteClick = (e: React.MouseEvent, file: FileData) => {
+    e.stopPropagation();
+    setFileToDelete(file);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!fileToDelete) return;
+
+    try {
+      await deleteUserFile(fileToDelete.id);
+
+      refetch();
+    } catch (error) {
+      console.error("Error deleting file:", error);
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setFileToDelete(null);
+    }
+  };
+
   return (
     <>
       <Table>
@@ -185,16 +222,25 @@ export default function FilesTable() {
               </TableCell>
               <TableCell>{formatDate(file.createdAt)}</TableCell>
               <TableCell>
-                <a
-                  href={file.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center text-blue-600 hover:text-blue-800"
-                >
-                  <ExternalLink className="h-4 w-4 mr-1" />
-                  View
-                </a>
+                <div className="flex items-center space-x-4">
+                  <a
+                    href={file.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center text-blue-600 hover:text-blue-800"
+                  >
+                    <ExternalLink className="h-4 w-4 mr-1" />
+                    View
+                  </a>
+                  <Button
+                    variant="ghost"
+                    onClick={(e) => handleDeleteClick(e, file as FileData)}
+                    className="inline-flex items-center text-red-600 hover:text-red-800 cursor-pointer"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -249,6 +295,37 @@ export default function FilesTable() {
           </DialogContent>
         )}
       </Dialog>
+
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the file
+              {fileToDelete && (
+                <span className="font-medium">
+                  &quot;{fileToDelete.originalName}&quot;
+                </span>
+              )}
+              . This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="cursor-pointer">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700 cursor-pointer"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
