@@ -31,8 +31,10 @@ export function Filters() {
 
   const statusOptions = [
     { value: "", label: "All" },
-    { value: "active", label: "Active" },
-    { value: "archived", label: "Archived" },
+    { value: "completed", label: "Completed" },
+    { value: "processing", label: "Processing" },
+    { value: "pending", label: "Pending" },
+    { value: "failed", label: "Failed" },
   ];
 
   const sortOptions = [
@@ -46,7 +48,6 @@ export function Filters() {
     setFileName(searchInput);
   };
 
-  // Toggle file type selection
   const toggleFileType = (type: string) => {
     if (fileType === type) {
       setFileType("");

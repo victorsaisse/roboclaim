@@ -11,9 +11,31 @@ export async function getUsers() {
   }
 }
 
-export async function getUserFiles(userId: string) {
+export async function getUserFiles({
+  userId,
+  fileName,
+  fileType,
+  status,
+  sortBy,
+  sortOrder,
+}: {
+  userId: string;
+  fileName: string;
+  fileType: string;
+  status: string;
+  sortBy: string;
+  sortOrder: string;
+}) {
   try {
-    const response = await apiClient.get(`/users/${userId}/files`);
+    const response = await apiClient.get(`/users/${userId}/files`, {
+      params: {
+        fileName,
+        fileType,
+        status,
+        sortBy,
+        sortOrder,
+      },
+    });
     return response.data;
   } catch (error) {
     throw error;

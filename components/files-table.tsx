@@ -25,6 +25,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { ExternalLink, File, Trash2 } from "lucide-react";
+import { useQueryState } from "nuqs";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -36,14 +37,38 @@ export default function FilesTable() {
   const [fileToDelete, setFileToDelete] = useState<FileData | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  const [fileName] = useQueryState("fileName");
+  const [fileType] = useQueryState("fileType");
+  const [status] = useQueryState("status");
+  const [sortBy] = useQueryState("sortBy");
+  const [sortOrder] = useQueryState("sortOrder");
+
   const {
     data: files,
     isLoading,
     error,
     refetch,
   } = useQuery({
-    queryKey: ["files", user?.id],
-    queryFn: () => (user?.id ? getUserFiles(user.id) : Promise.resolve([])),
+    queryKey: [
+      "files",
+      user?.id,
+      fileName,
+      fileType,
+      status,
+      sortBy,
+      sortOrder,
+    ],
+    queryFn: () =>
+      user?.id
+        ? getUserFiles({
+            userId: user.id,
+            fileName: fileName || "",
+            fileType: fileType || "",
+            status: status || "",
+            sortBy: sortBy || "",
+            sortOrder: sortOrder || "",
+          })
+        : Promise.resolve([]),
     enabled: !!user?.id,
   });
 
