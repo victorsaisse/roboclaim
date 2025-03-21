@@ -1,6 +1,8 @@
 "use client";
 
 import { apiClient, publicApiClient } from "@/services/api-client";
+import { redirect } from "next/navigation";
+import { useUserStore } from "@/store/use-user-store";
 
 export async function login(formData: FormData) {
   const email = formData.get("email");
@@ -14,6 +16,12 @@ export async function login(formData: FormData) {
 
     if (response.data.access_token) {
       localStorage.setItem("token", response.data.access_token);
+      useUserStore.setState({
+        user: {
+          email: response.data.user.email,
+          role: response.data.user.role,
+        },
+      });
     }
   } catch (error) {
     console.error("Login error:", error);
@@ -39,6 +47,7 @@ export async function register(formData: FormData) {
 
 export async function logout() {
   localStorage.removeItem("token");
+  redirect("/");
 }
 
 export async function getUser() {
