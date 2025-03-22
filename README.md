@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RoboClaim
+
+A modern web application for extracting, processing, and analyzing data from various file types. Built with Next.js, Tailwind CSS, and a RESTful API backend.
+
+## Features
+
+- **File Upload and Processing**: Upload PDFs, images, CSV, and XLSX files (up to 5MB)
+- **Automatic Data Extraction**: Extract data from uploaded files
+- **File Management**: View, search, filter, and delete your processed files
+- **User Authentication**: Secure login and registration
+- **Dashboard Analytics**: View statistics about your uploaded files and processing metrics
+- **Responsive Design**: Works on desktop and mobile devices
+
+## Tech Stack
+
+- **Frontend**: Next.js 15, React 19, Tailwind CSS, shadcn/ui
+- **State Management**: Zustand, React Query
+- **API Integration**: Axios, React Query
+- **Authentication**: JWT-based authentication
+- **Data Visualization**: Recharts
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+
+### Installation
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/yourusername/roboclaim.git
+cd roboclaim
+```
+
+2. Install dependencies
+
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Configure environment variables
+
+```
+cp .env.template .env
+```
+
+Edit the `.env` file and set your `NEXT_PUBLIC_BASE_URL` to point to your backend API server.
+
+4. Start the development server
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Register or login to your account
+2. Upload files through the dashboard
+3. Wait for the system to process and extract data
+4. View your files and extracted data in the Files section
+5. Search, filter, and sort your processed files
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+This application can be easily deployed to Vercel:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+npm run start
+```
