@@ -35,6 +35,20 @@ export function UserStats() {
     return <UserStatsSkeleton />;
   }
 
+  if (!userStats || userStats.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-6 text-center border rounded-lg bg-muted/30">
+        <h3 className="text-lg font-medium mb-2">
+          No statistics available yet
+        </h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Upload and process files to see your usage statistics and performance
+          metrics
+        </p>
+      </div>
+    );
+  }
+
   const totalFiles = userStats.length;
   const totalProcessingTime =
     userStats.reduce(

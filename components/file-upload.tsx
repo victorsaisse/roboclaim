@@ -2,6 +2,7 @@
 
 import { apiClient } from "@/services/api-client";
 import { useUserStore } from "@/store/use-user-store";
+import { useQueryClient } from "@tanstack/react-query";
 import { Upload } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
@@ -17,6 +18,7 @@ const ACCEPTED_FILE_TYPES = [
 
 export function FileUpload() {
   const { user } = useUserStore();
+  const queryClient = useQueryClient();
 
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,6 +42,11 @@ export function FileUpload() {
 
   const uploadAndProcessFile = useCallback(
     async (file: File) => {
+      const refetch = () => {
+        queryClient.invalidateQueries({ queryKey: ["user-stats"] });
+        queryClient.invalidateQueries({ queryKey: ["user-files"] });
+      };
+
       const validateFile = (file: File) => {
         if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
           toast.error(
@@ -90,6 +97,8 @@ export function FileUpload() {
           throw new Error("Extract failed");
         }
 
+        refetch();
+
         toast.success("File extraction started!");
       } catch (error) {
         toast.error("Failed to upload file. Please try again.");
@@ -98,7 +107,7 @@ export function FileUpload() {
         setIsLoading(false);
       }
     },
-    [user]
+    [user, queryClient]
   );
 
   const handleDrop = useCallback(
