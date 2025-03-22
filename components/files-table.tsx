@@ -4,14 +4,13 @@ import { ErrorMessage } from "@/components/error-message";
 import { DeleteFileDialog } from "@/components/files/delete-file-dialog";
 import { FileDetailsModal } from "@/components/files/file-details-modal";
 import { FileStatusBadge } from "@/components/files/file-status-badge";
-import { Filters } from "@/components/filters";
+import { PaginationComponent } from "@/components/pagination";
 import { FilesTableSkeleton } from "@/components/skeletons/files-table-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -36,6 +35,7 @@ export default function FilesTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<FileData | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [fileName] = useQueryState("fileName");
   const [fileType] = useQueryState("fileType");
@@ -127,17 +127,14 @@ export default function FilesTable() {
     }
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:justify-between gap-2 border-b">
-        <div className="flex-grow">
-          <Filters />
-        </div>
-      </div>
-
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto mb-4 border-b">
         <Table>
-          <TableCaption>A list of your files.</TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead>File Name</TableHead>
@@ -207,6 +204,12 @@ export default function FilesTable() {
           </TableBody>
         </Table>
       </div>
+
+      <PaginationComponent
+        totalPages={20}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+      />
 
       <FileDetailsModal
         file={selectedFile}

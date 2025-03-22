@@ -1,4 +1,5 @@
 import FilesTable from "@/components/files-table";
+import { Filters } from "@/components/filters";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -27,6 +28,11 @@ export default function FilesPage() {
         </div>
       </header>
       <div className="flex flex-1 flex-col gap-4 p-4">
+        <div className="flex flex-col sm:flex-row sm:justify-between gap-2 border-b">
+          <div className="flex-grow">
+            <Filters />
+          </div>
+        </div>
         <FilesTable />
       </div>
     </>
