@@ -18,6 +18,7 @@ export async function getUserFiles({
   status,
   sortBy,
   sortOrder,
+  page,
 }: {
   userId: string;
   fileName: string;
@@ -25,6 +26,7 @@ export async function getUserFiles({
   status: string;
   sortBy: string;
   sortOrder: string;
+  page: string;
 }) {
   try {
     const response = await apiClient.get(`/users/${userId}/files`, {
@@ -34,6 +36,7 @@ export async function getUserFiles({
         status,
         sortBy,
         sortOrder,
+        page,
       },
     });
     return response.data;

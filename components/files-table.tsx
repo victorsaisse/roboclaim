@@ -41,10 +41,7 @@ export default function FilesTable() {
   const [status] = useQueryState("status");
   const [sortBy] = useQueryState("sortBy");
   const [sortOrder] = useQueryState("sortOrder");
-  const [page, setPage] = useQueryState("page", {
-    defaultValue: 1,
-    parse: (value) => parseInt(value),
-  });
+  const [page] = useQueryState("page");
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [
@@ -66,6 +63,7 @@ export default function FilesTable() {
             status: status || "",
             sortBy: sortBy || "",
             sortOrder: sortOrder || "",
+            page: page || "1",
           })
         : Promise.resolve([]),
     enabled: !!user?.id,
@@ -124,10 +122,6 @@ export default function FilesTable() {
       setIsDeleteDialogOpen(false);
       setFileToDelete(null);
     }
-  };
-
-  const handlePageChange = (page: number) => {
-    setPage(page);
   };
 
   const totalPages = Math.ceil(data.total / 10);
@@ -206,11 +200,7 @@ export default function FilesTable() {
         </Table>
       </div>
 
-      <PaginationComponent
-        totalPages={totalPages}
-        currentPage={page}
-        onPageChange={handlePageChange}
-      />
+      <PaginationComponent totalPages={totalPages} />
 
       <FileDetailsModal
         file={selectedFile}
