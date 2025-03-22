@@ -11,6 +11,14 @@ export async function getUsers() {
   }
 }
 
+export async function deleteUser(userId: string) {
+  try {
+    const response = await apiClient.delete(`/users/${userId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
 export async function getUserFiles({
   userId,
   fileName,

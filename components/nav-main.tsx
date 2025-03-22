@@ -64,7 +64,6 @@ export function NavMain({
                     isActive(item.url) && "bg-gray-200"
                   )}
                 >
-                  {item.icon && <item.icon />}
                   <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>
