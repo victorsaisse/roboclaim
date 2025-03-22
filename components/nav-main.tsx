@@ -1,6 +1,6 @@
 "use client";
 
-import { type LucideIcon } from "lucide-react";
+import { Users, type LucideIcon } from "lucide-react";
 
 import {
   SidebarGroup,
@@ -10,8 +10,10 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { useUserStore } from "@/store/use-user-store";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 export function NavMain({
   items,
 }: {
@@ -24,27 +26,52 @@ export function NavMain({
   const pathname = usePathname();
   const isActive = (url: string) => pathname === url;
 
+  const { user } = useUserStore();
+
   return (
-    <SidebarGroup>
-      <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-      <SidebarMenu>
-        {items.map((item) => (
-          <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton asChild>
-              <Link
-                href={item.url}
-                className={cn(
-                  "flex items-center gap-2",
-                  isActive(item.url) && "bg-gray-200"
-                )}
-              >
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        ))}
-      </SidebarMenu>
-    </SidebarGroup>
+    <>
+      {user?.role === "admin" && (
+        <SidebarGroup>
+          <SidebarGroupLabel>Admin</SidebarGroupLabel>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link
+                  href="/dashboard/users"
+                  className={cn(
+                    "flex items-center gap-2",
+                    isActive("/dashboard/users") && "bg-gray-200"
+                  )}
+                >
+                  <Users className="w-4 h-4" />
+                  <span>Users</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+      )}
+      <SidebarGroup>
+        <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+        <SidebarMenu>
+          {items.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild>
+                <Link
+                  href={item.url}
+                  className={cn(
+                    "flex items-center gap-2",
+                    isActive(item.url) && "bg-gray-200"
+                  )}
+                >
+                  {item.icon && <item.icon />}
+                  <span>{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroup>
+    </>
   );
 }
