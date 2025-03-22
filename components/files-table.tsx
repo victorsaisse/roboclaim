@@ -35,20 +35,18 @@ export default function FilesTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<FileData | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
 
   const [fileName] = useQueryState("fileName");
   const [fileType] = useQueryState("fileType");
   const [status] = useQueryState("status");
   const [sortBy] = useQueryState("sortBy");
   const [sortOrder] = useQueryState("sortOrder");
+  const [page, setPage] = useQueryState("page", {
+    defaultValue: 1,
+    parse: (value) => parseInt(value),
+  });
 
-  const {
-    data: files,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: [
       "files",
       user?.id,
@@ -57,6 +55,7 @@ export default function FilesTable() {
       status,
       sortBy,
       sortOrder,
+      page,
     ],
     queryFn: () =>
       user?.id
@@ -128,8 +127,10 @@ export default function FilesTable() {
   };
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    setPage(page);
   };
+
+  const totalPages = Math.ceil(data.total / 10);
 
   return (
     <div className="space-y-4">
@@ -146,7 +147,7 @@ export default function FilesTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {files.map((file: FileData) => (
+            {data.files.map((file: FileData) => (
               <TableRow
                 key={file.id}
                 className="cursor-pointer hover:bg-slate-50"
@@ -206,8 +207,8 @@ export default function FilesTable() {
       </div>
 
       <PaginationComponent
-        totalPages={20}
-        currentPage={currentPage}
+        totalPages={totalPages}
+        currentPage={page}
         onPageChange={handlePageChange}
       />
 
