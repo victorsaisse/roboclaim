@@ -40,7 +40,7 @@ export function Filters() {
   const sortOptions = [
     { value: "name", label: "Name" },
     { value: "date", label: "Date" },
-    { value: "size", label: "Size" },
+    { value: "processingTime", label: "Processing Time" },
   ];
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
